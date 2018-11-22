@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html>
+<head onload>
+<meta charset="utf-8" />
+<title>This test validates that synchronously adding entries in onresourcetimingbufferfull callback results in these entries being properly handled.</title>
+<link rel="author" title="Intel" href="http://www.intel.com/" />
+<link rel="help" href="http://www.w3.org/TR/resource-timing/#performanceresourcetiming"/>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script src="resources/append.js"></script>
+</head>
+<body>
+<script>
+    const resource_timing_buffer_size = 1;
+    const t = async_test("Verify that adding entries to the resource timing buffer during resourcetimingbufferfull call works");
+    performance.clearResourceTimings();
+    var add_entry = function() {
+        performance.setResourceTimingBufferSize(resource_timing_buffer_size * 2);
+        // Sync XHR a resource here
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "resources/empty.js?xhr", false);
+        xhr.send(null);
+    }
+    performance.addEventListener('resourcetimingbufferfull', add_entry);
+    performance.setResourceTimingBufferSize(resource_timing_buffer_size);
+    // Scripts appended in JS to ensure setResourceTimingBufferSize is called before.
+    // This resource gets buffered in the resource timing entry buffer.
+    appendScript('resources/empty.js');
+    // This resource overflows the entry buffer, and goes into the secondary buffer.
+    appendScript('resources/empty_script.js');
+    window.onload = t.step_func_done(()=>{
+        assert_equals(performance.getEntriesByType('resource').length, 2,
+                      'Both entries should be stored in resource timing buffer since its increases size once it overflows.');
+        assert_true(performance.getEntriesByType('resource')[0].name.includes('empty.js'), "empty.js is in the entries buffer");
+        assert_true(performance.getEntriesByType('resource')[1].name.includes('empty.js?xhr'), "empty.js?xhr is in the entries buffer");
+    });
+</script>
+</body>
+</html>
