@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<title>MediaCapabilities.decodingInfo()</title>
+<title>MediaCapabilities.encodingInfo()</title>
 <script src=/resources/testharness.js></script>
 <script src="/resources/testharnessreport.js"></script>
 <script>
@@ -283,9 +283,9 @@ promise_test(t => {
     video: minimalVideoConfiguration,
     audio: minimalAudioConfiguration,
   }).then(ability => {
-    assert_idl_attribute(ability, 'supported');
-    assert_idl_attribute(ability, 'smooth');
-    assert_idl_attribute(ability, 'powerEfficient');
+    assert_not_equals(ability.supported, undefined);
+    assert_not_equals(ability.smooth, undefined);
+    assert_not_equals(ability.powerEfficient, undefined);
   });
 }, "Test that encodingInfo returns a valid MediaCapabilitiesInfo objects");
 
