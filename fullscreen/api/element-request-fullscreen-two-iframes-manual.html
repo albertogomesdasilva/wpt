@@ -22,18 +22,21 @@ async_test(t => {
     order.push(document.fullscreenElement.id);
     if (order.length == 2) {
       // Since fullscreenchange event occurs at animation frame timing we might
-      // have not seen the transition from null -> 'b' but just see the
-      // resulting 'a' transition twice.
+      // have not seen the transition from null -> 'a' but just see the
+      // resulting 'b' transition twice.
       assert_true(order[0] == 'a' || order[0] == 'b', 'first id seen is a or b');
-      assert_true(order[1] == 'a', 'second id seen is b');
+      assert_true(order[1] == 'b', 'second id seen is b');
       t.done();
     }
   });
   document.onfullscreenerror = t.unreached_func('fullscreenerror event');
 
   trusted_click(t, () => {
-    b.contentDocument.body.requestFullscreen();
     a.contentDocument.body.requestFullscreen();
-  }, document.body);
+  }, a.contentDocument.body);
+
+  trusted_click(t, () => {
+    b.contentDocument.body.requestFullscreen();
+  }, b.contentDocument.body);
 });
 </script>
